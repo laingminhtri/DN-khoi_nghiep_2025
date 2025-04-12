@@ -1,24 +1,10 @@
 import os
 import subprocess
-import zipfile
+import py7zr
 from flask import Flask, request, jsonify
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-import py7zr
-
-# ======= GIẢI NÉN FILE =======
-if not os.path.exists(MODEL_PATH):
-    print("Extracting model...")
-    try:
-        with py7zr.SevenZipFile(OUTPUT_7Z, mode='r') as archive:
-            archive.extractall(path=MODEL_DIR)
-    except Exception as e:
-        raise RuntimeError(f"Error extracting model: {e}")
-    print("Model extracted successfully.")
-
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model file {MODEL_PATH} not found after extraction.")
 
 # ======= CẤU HÌNH GPU HOẶC CPU =======
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -56,9 +42,10 @@ if not os.path.exists(OUTPUT_7Z):
 if not os.path.exists(MODEL_PATH):
     print("Extracting model...")
     try:
-        subprocess.run(["7z", "x", OUTPUT_7Z, "-o" + MODEL_DIR], check=True)
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError("Error extracting model: Ensure 7z is installed and in PATH") from e
+        with py7zr.SevenZipFile(OUTPUT_7Z, mode='r') as archive:
+            archive.extractall(path=MODEL_DIR)
+    except Exception as e:
+        raise RuntimeError(f"Error extracting model: {e}")
     print("Model extracted successfully.")
 
     if not os.path.exists(MODEL_PATH):
