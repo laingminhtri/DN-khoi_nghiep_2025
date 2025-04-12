@@ -107,6 +107,36 @@ def predict():
         print(f"Lỗi trong route /predict: {str(e)}")
         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
 
+    @app.route("/upload_file", methods=["POST"])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part'
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return 'No selected file'
+
+    if file:
+        image_path = '/content/' + file.filename
+        file.save(image_path)  # Save the file to a folder named 'uploads'
+
+        # Đọc ảnh và chuyển về kích thước mong muốn (240x240 trong trường hợp này)
+        image = cv2.imread(image_path)
+        image = cv2.resize(image, (240, 240))
+        image = np.expand_dims(image, axis=0)  # Thêm chiều batch
+
+        # Chuẩn hóa dữ liệu (nếu cần)
+        # image = image / 255.0
+
+        # Dự đoán nhãn
+        prediction = best_model.predict(image)
+        binary_prediction = np.round(prediction)
+
+        return json.dumps(binary_prediction.tolist())
+
+    return 'Error uploading file'
+
 
 # Chạy ứng dụng Flask (chỉ dùng khi chạy cục bộ)
 if __name__ == '__main__':
