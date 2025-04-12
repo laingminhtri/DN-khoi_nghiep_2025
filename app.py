@@ -101,9 +101,9 @@ def predict():
         if image_file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
 
-        # Giả lập xử lý dự đoán
-        prediction_score = 0.7  # Ví dụ: đây là xác suất dự đoán
-        return jsonify({'predictions': [prediction_score]})
+        # # Giả lập xử lý dự đoán
+        # prediction_score = 0.7  # Ví dụ: đây là xác suất dự đoán
+        # return jsonify({'predictions': [prediction_score]})
 
         # Xử lý ảnh
         from PIL import Image
