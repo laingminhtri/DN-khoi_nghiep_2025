@@ -96,6 +96,15 @@ def predict():
         if file.filename == '':
             return jsonify({'error': 'Tên file rỗng!'}), 400
 
+
+        image_file = request.files['image']
+        if image_file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+
+        # Giả lập xử lý dự đoán
+        prediction_score = 0.7  # Ví dụ: đây là xác suất dự đoán
+        return jsonify({'predictions': [prediction_score]})
+
         # Xử lý ảnh
         from PIL import Image
         image = Image.open(file).convert('RGB')  # Chuyển đổi ảnh sang định dạng RGB
