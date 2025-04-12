@@ -2,11 +2,11 @@ import os
 import flask
 import tensorflow as tf
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import py7zr
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder="templates")
 
 # Define the path to the model weights
 COMPRESSED_MODEL_PATH = './models/best_weights_model.7z'
@@ -30,10 +30,19 @@ def load_model():
         model = tf.keras.models.load_model(EXTRACTED_MODEL_PATH)
         print("Model loaded successfully.")
 
+# Route for the homepage
 @app.route('/')
 def home():
-    return "Welcome to the Nodule Detector API!"
+    # Render index.html from the templates folder
+    return render_template('index.html')
 
+# Route for dashboard
+@app.route('/dashboard')
+def dashboard():
+    # Render dashboard.html from the templates folder
+    return render_template('dashboard.html')
+
+# Prediction API
 @app.route('/predict', methods=['POST'])
 def predict():
     # Ensure the model is loaded
@@ -65,6 +74,7 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Run the app (this won't be used in Render, but useful for local testing)
+
+# Run the app (useful for local testing)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
