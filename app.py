@@ -1,12 +1,12 @@
 import os
 import gdown
 from flask import Flask, request, jsonify
-from keras.models import load_model
+# from keras.models import load_model
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-import io
-from tensorflow import keras
+# import io
+# from tensorflow import keras
 
 # ======= CẤU HÌNH GPU HOẶC CPU ĐỂ TRÁNH LỖI OOM =======
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -27,7 +27,8 @@ if not os.path.exists(MODEL_PATH):
     print("Download completed.")
 
 # ======= LOAD MODEL SAU KHI TẢI =======
-model = keras.models.load_model(MODEL_PATH)
+# model = keras.models.load_model(MODEL_PATH)
+model = tf.keras.models.load_model(MODEL_PATH)
 
 # ======= FLASK APP =======
 app = Flask(__name__)
