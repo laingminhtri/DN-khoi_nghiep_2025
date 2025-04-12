@@ -78,17 +78,11 @@ def dashboard():
     """
     return render_template('dashboard.html')
 
-# Route dự đoán
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    API nhận một file ảnh từ người dùng, xử lý và trả về kết quả dự đoán.
-    """
     try:
-        # Tải mô hình nếu chưa được tải
         load_model()
 
-        # Kiểm tra xem file ảnh có trong request không
         if 'image' not in request.files:
             return jsonify({'error': 'Không có file ảnh được gửi!'}), 400
 
@@ -96,35 +90,23 @@ def predict():
         if file.filename == '':
             return jsonify({'error': 'Tên file rỗng!'}), 400
 
-
-        image_file = request.files['image']
-        if image_file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
-
-        # # Giả lập xử lý dự đoán
-        # prediction_score = 0.7  # Ví dụ: đây là xác suất dự đoán
-        # return jsonify({'predictions': [prediction_score]})
-
         # Xử lý ảnh
         from PIL import Image
-        image = Image.open(file).convert('RGB')  # Chuyển đổi ảnh sang định dạng RGB
-        image = image.resize((224, 224))  # Resize ảnh về kích thước 224x224
-        img_array = np.array(image) / 255.0  # Chuẩn hóa giá trị pixel
-        img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
+        image = Image.open(file).convert('RGB')
+        image = image.resize((224, 224))
+        img_array = np.array(image) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
 
         # Thực hiện dự đoán
         predictions = model.predict(img_array)
-        print("Kết quả dự đoán:", predictions)  # Thêm log kiểm tra
-        result = {
-            'predictions': predictions.tolist()
-        }
+        print("Kết quả dự đoán:", predictions)
 
-        # Trả về kết quả
-        return jsonify(result)
+        return jsonify({'predictions': predictions.tolist()})
 
     except Exception as e:
         print(f"Lỗi trong route /predict: {str(e)}")
         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
+
 
 # Chạy ứng dụng Flask (chỉ dùng khi chạy cục bộ)
 if __name__ == '__main__':
