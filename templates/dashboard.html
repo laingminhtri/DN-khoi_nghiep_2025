@@ -92,10 +92,9 @@
     console.error('Server response is not JSON:', errorText);
     resultMessage.innerText = `Lỗi: Server trả về định dạng không hợp lệ hoặc lỗi nội bộ.`;
   }
-} catch (err) {
-  resultMessage.innerText = `Lỗi: ${err.message}`;
-}
-
+  } catch (err) {
+    resultMessage.innerText = `Lỗi: ${err.message}`;
+  }
   </script>
 </body>
 </html>
