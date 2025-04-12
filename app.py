@@ -8,6 +8,13 @@ from PIL import Image
 import io
 from tensorflow import keras
 
+# ======= CẤU HÌNH GPU HOẶC CPU ĐỂ TRÁNH LỖI OOM =======
+physical_devices = tf.config.list_physical_devices('GPU')
+try:
+    for device in physical_devices:
+        tf.config.experimental.set_memory_growth(device, True)
+except:
+    pass
 
 # ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
 os.makedirs("models", exist_ok=True)
@@ -22,7 +29,8 @@ if not os.path.exists(MODEL_PATH):
 # ======= LOAD MODEL SAU KHI TẢI =======
 model = keras.models.load_model(MODEL_PATH)
 
-
+# ======= FLASK APP =======
+app = Flask(__name__)
 
 
 @app.route("/predict", methods=["POST"])
