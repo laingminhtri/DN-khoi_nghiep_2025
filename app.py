@@ -8,7 +8,7 @@ from PIL import Image
 import io
 
 # ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
-MODEL_PATH = "best_weights_model.keras"
+MODEL_PATH = '/content/drive/MyDrive/efficientnet/efficientnet/best_weights_model.keras'
 FILE_ID = "1EpAgsWQSXi7CsUO8mEQDGAJyjdfN0T6n"  # <-- Thay bằng file ID thật của bạn
 
 if not os.path.exists(MODEL_PATH):
@@ -20,8 +20,6 @@ if not os.path.exists(MODEL_PATH):
 app = Flask(__name__)
 model = load_model(MODEL_PATH)
 
-# Load model (upload model.keras lên Render project cùng source code luôn)
-model = load_model("model.keras")
 
 @app.route("/predict", methods=["POST"])
 def predict():
