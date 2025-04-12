@@ -2,6 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 from flask import Flask, request, jsonify, render_template
+from PIL import Image
 import py7zr
 from flask_cors import CORS  # Import CORS
 
@@ -49,6 +50,8 @@ def extract_model():
 
 # Khởi tạo biến toàn cục để lưu trữ mô hình
 model = None
+EXTRACTED_MODEL_PATH = './models/best_weights_model.keras'
+
 
 # Hàm tải mô hình
 def load_model():
