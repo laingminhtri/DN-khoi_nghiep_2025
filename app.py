@@ -18,6 +18,10 @@ MODEL_DIR = "models"
 OUTPUT_ZIP = os.path.join(MODEL_DIR, "best_weights_model.zip")
 MODEL_PATH = os.path.join(MODEL_DIR, "best_weights_model.keras")
 
+# Kiểm tra và tạo thư mục models nếu chưa có
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
+
 # Ghép các phần của file zip
 if not os.path.exists(MODEL_PATH):
     print("Combining model parts...")
