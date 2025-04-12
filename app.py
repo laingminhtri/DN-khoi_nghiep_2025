@@ -1,83 +1,70 @@
 import os
-import subprocess
-import py7zr
-from flask import Flask, request, jsonify
-import numpy as np
+import flask
 import tensorflow as tf
-from PIL import Image
+import numpy as np
+from flask import Flask, request, jsonify
+import py7zr
 
-# ======= CẤU HÌNH GPU HOẶC CPU =======
-physical_devices = tf.config.list_physical_devices('GPU')
-try:
-    for device in physical_devices:
-        tf.config.experimental.set_memory_growth(device, True)
-except Exception as e:
-    print("No GPU detected. Using CPU:", e)
-
-# ======= CẤU HÌNH ĐƯỜNG DẪN =======
-MODEL_DIR = "models"
-OUTPUT_7Z = os.path.join(MODEL_DIR, "best_weights_model.7z")
-MODEL_PATH = os.path.join(MODEL_DIR, "best_weights_model.keras")
-
-# Tạo thư mục models nếu chưa có
-if not os.path.exists(MODEL_DIR):
-    os.makedirs(MODEL_DIR)
-
-# ======= GHÉP FILE MÔ HÌNH =======
-if not os.path.exists(OUTPUT_7Z):
-    print("Combining model parts...")
-    parts = sorted([f for f in os.listdir(MODEL_DIR) if f.startswith("best_weights_model.7z.")])
-    if not parts:
-        raise FileNotFoundError("No parts found for the model in the 'models' directory.")
-
-    print(f"Found parts: {parts}")
-    with open(OUTPUT_7Z, "wb") as output_file:
-        for part in parts:
-            part_path = os.path.join(MODEL_DIR, part)
-            with open(part_path, "rb") as part_file:
-                output_file.write(part_file.read())
-    print("Model parts combined successfully.")
-
-# ======= GIẢI NÉN FILE =======
-if not os.path.exists(MODEL_PATH):
-    print("Extracting model...")
-    try:
-        with py7zr.SevenZipFile(OUTPUT_7Z, mode='r') as archive:
-            archive.extractall(path=MODEL_DIR)
-    except Exception as e:
-        raise RuntimeError(f"Error extracting model: {e}")
-    print("Model extracted successfully.")
-
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model file {MODEL_PATH} not found after extraction.")
-
-# ======= LOAD MODEL =======
-try:
-    model = tf.keras.models.load_model(MODEL_PATH)
-    print("Model loaded successfully.")
-except Exception as e:
-    print("Error loading model:", e)
-    raise
-
-# ======= FLASK APP =======
+# Create Flask app
 app = Flask(__name__)
 
-@app.route("/predict", methods=["POST"])
+# Define the path to the model weights
+COMPRESSED_MODEL_PATH = './models/best_weights_model.7z'
+EXTRACTED_MODEL_PATH = './models/best_weights_model.keras'
+
+# Function to extract the model from .7z parts
+def extract_model():
+    if not os.path.exists(EXTRACTED_MODEL_PATH):
+        print("Extracting model weights...")
+        with py7zr.SevenZipFile(COMPRESSED_MODEL_PATH, mode='r') as archive:
+            archive.extractall(path='./models')
+        print("Model extraction complete.")
+
+# Load the model (ensure the model is extracted first)
+model = None
+def load_model():
+    global model
+    if model is None:
+        print("Loading model...")
+        extract_model()
+        model = tf.keras.models.load_model(EXTRACTED_MODEL_PATH)
+        print("Model loaded successfully.")
+
+@app.route('/')
+def home():
+    return "Welcome to the Nodule Detector API!"
+
+@app.route('/predict', methods=['POST'])
 def predict():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    file = request.files['file']
+    # Ensure the model is loaded
+    load_model()
+
+    # Get the input data from the request
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'Empty filename'}), 400
 
     try:
-        img = Image.open(file.stream).resize((224, 224))
+        # Read the image
+        from PIL import Image
+        image = Image.open(file).convert('RGB')
+        image = image.resize((224, 224))  # Resize to the input size expected by the model
+        img_array = np.array(image) / 255.0  # Normalize pixel values
+        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+
+        # Perform prediction
+        predictions = model.predict(img_array)
+        result = {
+            'predictions': predictions.tolist()
+        }
+        return jsonify(result)
+
     except Exception as e:
-        return jsonify({'error': 'Invalid image file', 'message': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
-    img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
-    prediction = model.predict(img_array)
-    result = "nodule" if prediction[0][0] > 0.5 else "non-nodule"
-    return jsonify({"result": result})
-
+# Run the app (this won't be used in Render, but useful for local testing)
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=5000)
