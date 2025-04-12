@@ -1,4 +1,5 @@
 import os
+import subprocess
 import zipfile
 from flask import Flask, request, jsonify
 import numpy as np
@@ -11,41 +12,43 @@ try:
     for device in physical_devices:
         tf.config.experimental.set_memory_growth(device, True)
 except Exception as e:
-    print("Error setting GPU memory growth:", e)
+    print("No GPU detected. Using CPU:", e)
 
-# ======= GHÉP FILE MÔ HÌNH =======
+# ======= CẤU HÌNH ĐƯỜNG DẪN =======
 MODEL_DIR = "models"
-OUTPUT_ZIP = os.path.join(MODEL_DIR, "best_weights_model.zip")
+OUTPUT_7Z = os.path.join(MODEL_DIR, "best_weights_model.7z")
 MODEL_PATH = os.path.join(MODEL_DIR, "best_weights_model.keras")
 
 # Tạo thư mục models nếu chưa có
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 
-# Ghép các phần của file zip
-if not os.path.exists(MODEL_PATH):
+# ======= GHÉP FILE MÔ HÌNH =======
+if not os.path.exists(OUTPUT_7Z):
     print("Combining model parts...")
-    parts = sorted([f for f in os.listdir(MODEL_DIR) if f.startswith("best_weights_model.zip.")])
+    parts = sorted([f for f in os.listdir(MODEL_DIR) if f.startswith("best_weights_model.7z.")])
     if not parts:
         raise FileNotFoundError("No parts found for the model in the 'models' directory.")
 
     print(f"Found parts: {parts}")
-    with open(OUTPUT_ZIP, "wb") as output_file:
+    with open(OUTPUT_7Z, "wb") as output_file:
         for part in parts:
             part_path = os.path.join(MODEL_DIR, part)
             with open(part_path, "rb") as part_file:
                 output_file.write(part_file.read())
     print("Model parts combined successfully.")
 
-    # Kiểm tra file zip có hợp lệ không
-    if not zipfile.is_zipfile(OUTPUT_ZIP):
-        raise zipfile.BadZipFile("Combined file is not a valid ZIP file.")
-
-    # Giải nén file zip để lấy file keras
+# ======= GIẢI NÉN FILE =======
+if not os.path.exists(MODEL_PATH):
     print("Extracting model...")
-    with zipfile.ZipFile(OUTPUT_ZIP, 'r') as zip_ref:
-        zip_ref.extractall(MODEL_DIR)
+    try:
+        subprocess.run(["7z", "x", OUTPUT_7Z, "-o" + MODEL_DIR], check=True)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError("Error extracting model: Ensure 7z is installed and in PATH") from e
     print("Model extracted successfully.")
+
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(f"Model file {MODEL_PATH} not found after extraction.")
 
 # ======= LOAD MODEL =======
 try:
