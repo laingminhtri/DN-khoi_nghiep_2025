@@ -1,5 +1,7 @@
-# Sử dụng Python 3.9 làm base image
-FROM python:3.9-slim
+FROM python:3.11-slim
+
+# Cài đặt các công cụ cần thiết
+RUN apt-get update && apt-get install -y p7zip-full && rm -rf /var/lib/apt/lists/*
 
 # Set thư mục làm việc
 WORKDIR /app
@@ -15,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # Command để chạy app
-CMD ["python", "app.py"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
