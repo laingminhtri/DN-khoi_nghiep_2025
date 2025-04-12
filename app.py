@@ -1,12 +1,9 @@
 import os
-import gdown
+import zipfile
 from flask import Flask, request, jsonify
-# from keras.models import load_model
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-# import io
-# from tensorflow import keras
 
 # ======= CẤU HÌNH GPU HOẶC CPU ĐỂ TRÁNH LỖI OOM =======
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -16,30 +13,36 @@ try:
 except Exception as e:
     print("Error setting GPU memory growth:", e)
 
-# ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
-os.makedirs("models", exist_ok=True)
-MODEL_PATH = "models/best_weights_model.keras"  # Tên file đúng
-FILE_ID = "1EpAgsWQSXi7CsUO8mEQDGAJyjdfN0T6n"  # <-- Thay bằng file ID thật của bạn
+# ======= GHÉP FILE MÔ HÌNH TỪ CÁC PHẦN CHIA NHỎ =======
+MODEL_DIR = "models"
+OUTPUT_ZIP = os.path.join(MODEL_DIR, "best_weights_model.zip")
+MODEL_PATH = os.path.join(MODEL_DIR, "best_weights_model.keras")
 
-# Nếu file chưa tồn tại, tải model từ Google Drive
+# Ghép các phần của file zip
 if not os.path.exists(MODEL_PATH):
-    print("Downloading model from Google Drive...")
-    gdown.download(f"https://drive.google.com/uc?id={FILE_ID}", MODEL_PATH, quiet=False)
-    print("Download completed.")
+    print("Combining model parts...")
+    with open(OUTPUT_ZIP, "wb") as output_file:
+        for part in sorted([f for f in os.listdir(MODEL_DIR) if f.startswith("best_weights_model.zip.")]):
+            with open(os.path.join(MODEL_DIR, part), "rb") as part_file:
+                output_file.write(part_file.read())
+    print("Model parts combined successfully.")
 
-# ======= LOAD MODEL SAU KHI TẢI =======
-# model = keras.models.load_model(MODEL_PATH)
+    # Giải nén file zip để lấy file keras
+    print("Extracting model...")
+    with zipfile.ZipFile(OUTPUT_ZIP, 'r') as zip_ref:
+        zip_ref.extractall(MODEL_DIR)
+    print("Model extracted successfully.")
+
+# ======= LOAD MODEL SAU KHI GHÉP =======
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
     print("Model loaded successfully.")
 except Exception as e:
     print("Error loading model:", e)
-    # Nếu có lỗi, in ra message và thoát
     raise
 
 # ======= FLASK APP =======
 app = Flask(__name__)
-
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -51,14 +54,8 @@ def predict():
         img = Image.open(file.stream).resize((224, 224))
     except Exception as e:
         return jsonify({'error': 'Invalid image file', 'message': str(e)}), 400
+
     img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
-
-    
-    # img = Image.open(file.stream).resize((224, 224))  # Resize tùy kiến trúc model
-    
-    
-    # img_array = np.expand_dims(np.array(img)/255.0, axis=0)
-
     prediction = model.predict(img_array)
     result = "nodule" if prediction[0][0] > 0.5 else "non-nodule"
     return jsonify({"result": result})
