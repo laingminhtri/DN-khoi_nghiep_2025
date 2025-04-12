@@ -5,6 +5,7 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import py7zr
 from flask_cors import CORS  # Import CORS
+import gdown  # Thư viện để tải file từ Google Drive
 
 # Tạo Flask app
 app = Flask(__name__)
@@ -74,7 +75,10 @@ def predict():
         return jsonify(result)
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Xử lý ngoại lệ và trả về lỗi
+        print(f"Lỗi trong route /predict: {str(e)}")
+        return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
+
 
 
 # Run the app (useful for local testing)
