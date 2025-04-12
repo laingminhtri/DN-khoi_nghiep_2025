@@ -78,64 +78,64 @@ def dashboard():
     """
     return render_template('dashboard.html')
 
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     try:
-#         load_model()
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        load_model()
 
-#         if 'image' not in request.files:
-#             return jsonify({'error': 'Không có file ảnh được gửi!'}), 400
+        if 'image' not in request.files:
+            return jsonify({'error': 'Không có file ảnh được gửi!'}), 400
 
-#         file = request.files['image']
-#         if file.filename == '':
-#             return jsonify({'error': 'Tên file rỗng!'}), 400
-
-#         # Xử lý ảnh
-#         from PIL import Image
-#         image = Image.open(file).convert('RGB')
-#         image = image.resize((224, 224))
-#         img_array = np.array(image) / 255.0
-#         img_array = np.expand_dims(img_array, axis=0)
-
-#         # Thực hiện dự đoán
-#         predictions = model.predict(img_array)
-#         print("Kết quả dự đoán:", predictions)
-
-#         return jsonify({'predictions': predictions.tolist()})
-
-#     except Exception as e:
-#         print(f"Lỗi trong route /predict: {str(e)}")
-#         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
-
-    @app.route("/upload_file", methods=["POST"])
-    def upload_file():
-        if 'file' not in request.files:
-            return 'No file part'
-
-        file = request.files['file']
-
+        file = request.files['image']
         if file.filename == '':
-            return 'No selected file'
+            return jsonify({'error': 'Tên file rỗng!'}), 400
 
-        if file:
-            image_path = '/content/' + file.filename
-            file.save(image_path)  # Save the file to a folder named 'uploads'
+        # Xử lý ảnh
+        from PIL import Image
+        image = Image.open(file).convert('RGB')
+        image = image.resize((224, 224))
+        img_array = np.array(image) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
 
-        # Đọc ảnh và chuyển về kích thước mong muốn (240x240 trong trường hợp này)
-            image = cv2.imread(image_path)
-            image = cv2.resize(image, (240, 240))
-            image = np.expand_dims(image, axis=0)  # Thêm chiều batch
+        # Thực hiện dự đoán
+        predictions = model.predict(img_array)
+        print("Kết quả dự đoán:", predictions)
 
-        # Chuẩn hóa dữ liệu (nếu cần)
-        # image = image / 255.0
+        return jsonify({'predictions': predictions.tolist()})
 
-        # Dự đoán nhãn
-            prediction = best_model.predict(image)
-            binary_prediction = np.round(prediction)
+    except Exception as e:
+        print(f"Lỗi trong route /predict: {str(e)}")
+        return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
 
-            return json.dumps(binary_prediction.tolist())
+    # @app.route("/upload_file", methods=["POST"])
+    # def upload_file():
+    #     if 'file' not in request.files:
+    #         return 'No file part'
 
-        return 'Error uploading file'
+    #     file = request.files['file']
+
+    #     if file.filename == '':
+    #         return 'No selected file'
+
+    #     if file:
+    #         image_path = '/content/' + file.filename
+    #         file.save(image_path)  # Save the file to a folder named 'uploads'
+
+    #     # Đọc ảnh và chuyển về kích thước mong muốn (240x240 trong trường hợp này)
+    #         image = cv2.imread(image_path)
+    #         image = cv2.resize(image, (240, 240))
+    #         image = np.expand_dims(image, axis=0)  # Thêm chiều batch
+
+    #     # Chuẩn hóa dữ liệu (nếu cần)
+    #     # image = image / 255.0
+
+    #     # Dự đoán nhãn
+    #         prediction = best_model.predict(image)
+    #         binary_prediction = np.round(prediction)
+
+    #         return json.dumps(binary_prediction.tolist())
+
+    #     return 'Error uploading file'
 
 
 # Chạy ứng dụng Flask (chỉ dùng khi chạy cục bộ)
