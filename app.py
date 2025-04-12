@@ -25,7 +25,7 @@ def extract_model():
         if not os.path.exists(COMPRESSED_MODEL_PATH):
             print("File nén không tồn tại. Đang tải về từ Google Drive...")
             gdown.download(
-                "https://drive.google.com/uc?id=<ID_FILE_GOOGLE_DRIVE>",  # Thay <ID_FILE_GOOGLE_DRIVE> bằng ID file của bạn
+                "https://drive.google.com/uc?id=1EpAgsWQSXi7CsUO8mEQDGAJyjdfN0T6n",  # Thay <ID_FILE_GOOGLE_DRIVE> bằng ID file của bạn
                 COMPRESSED_MODEL_PATH,
                 quiet=False,
             )
