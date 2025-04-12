@@ -13,14 +13,15 @@ physical_devices = tf.config.list_physical_devices('GPU')
 try:
     for device in physical_devices:
         tf.config.experimental.set_memory_growth(device, True)
-except:
-    pass
+except Exception as e:
+    print("Error setting GPU memory growth:", e)
 
 # ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
 os.makedirs("models", exist_ok=True)
 MODEL_PATH = "models/best_weights_model.keras"  # Tên file đúng
 FILE_ID = "1EpAgsWQSXi7CsUO8mEQDGAJyjdfN0T6n"  # <-- Thay bằng file ID thật của bạn
 
+# Nếu file chưa tồn tại, tải model từ Google Drive
 if not os.path.exists(MODEL_PATH):
     print("Downloading model from Google Drive...")
     gdown.download(f"https://drive.google.com/uc?id={FILE_ID}", MODEL_PATH, quiet=False)
@@ -28,7 +29,13 @@ if not os.path.exists(MODEL_PATH):
 
 # ======= LOAD MODEL SAU KHI TẢI =======
 # model = keras.models.load_model(MODEL_PATH)
-model = tf.keras.models.load_model(MODEL_PATH)
+try:
+    model = tf.keras.models.load_model(MODEL_PATH)
+    print("Model loaded successfully.")
+except Exception as e:
+    print("Error loading model:", e)
+    # Nếu có lỗi, in ra message và thoát
+    raise
 
 # ======= FLASK APP =======
 app = Flask(__name__)
@@ -39,8 +46,18 @@ def predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     file = request.files['file']
-    img = Image.open(file.stream).resize((224, 224))  # Resize tùy kiến trúc model
-    img_array = np.expand_dims(np.array(img)/255.0, axis=0)
+
+    try:
+        img = Image.open(file.stream).resize((224, 224))
+    except Exception as e:
+        return jsonify({'error': 'Invalid image file', 'message': str(e)}), 400
+    img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
+
+    
+    # img = Image.open(file.stream).resize((224, 224))  # Resize tùy kiến trúc model
+    
+    
+    # img_array = np.expand_dims(np.array(img)/255.0, axis=0)
 
     prediction = model.predict(img_array)
     result = "nodule" if prediction[0][0] > 0.5 else "non-nodule"
