@@ -8,7 +8,8 @@ from PIL import Image
 import io
 
 # ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
-MODEL_PATH = '/content/drive/MyDrive/efficientnet/efficientnet/best_weights_model.keras'
+os.makedirs("models", exist_ok=True)
+MODEL_PATH = "models/best_weights_model.keras"  # Tên file đúng
 FILE_ID = "1EpAgsWQSXi7CsUO8mEQDGAJyjdfN0T6n"  # <-- Thay bằng file ID thật của bạn
 
 if not os.path.exists(MODEL_PATH):
@@ -16,9 +17,10 @@ if not os.path.exists(MODEL_PATH):
     gdown.download(f"https://drive.google.com/uc?id={FILE_ID}", MODEL_PATH, quiet=False)
     print("Download completed.")
 
-# ======= KHỞI TẠO FLASK APP & LOAD MODEL =======
-app = Flask(__name__)
-model = load_model(MODEL_PATH)
+# ======= LOAD MODEL SAU KHI TẢI =======
+model = keras.models.load_model(MODEL_PATH)
+
+
 
 
 @app.route("/predict", methods=["POST"])
