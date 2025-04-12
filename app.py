@@ -6,6 +6,8 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 import io
+from tensorflow import keras
+
 
 # ======= TẢI MODEL TỪ GOOGLE DRIVE NẾU CHƯA CÓ =======
 os.makedirs("models", exist_ok=True)
