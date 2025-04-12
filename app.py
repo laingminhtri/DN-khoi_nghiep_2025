@@ -4,9 +4,11 @@ import tensorflow as tf
 import numpy as np
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import py7zr
+from flask_cors import CORS  # Import CORS
 
-# Create Flask app
-app = Flask(__name__, static_folder="static", template_folder="templates")
+# Tạo Flask app
+app = Flask(__name__)
+CORS(app)  # Định cấu hình CORS cho toàn bộ app
 
 # Define the path to the model weights
 COMPRESSED_MODEL_PATH = './models/best_weights_model.7z'
