@@ -84,8 +84,8 @@
 
       // Kiểm tra thông tin đăng nhập
       if (userID === validUser && password === validPass) {
-        // Đăng nhập thành công, chuyển hướng đến trang dashboard
-        window.location.href = 'dashboard.html';
+        // Chuyển hướng đến route Flask `/dashboard`
+      window.location.href = '/dashboard';
       } else {
         alert('Sai ID hoặc mật khẩu. Vui lòng thử lại!');
       }
