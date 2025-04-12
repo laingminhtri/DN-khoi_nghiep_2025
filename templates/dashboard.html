@@ -91,7 +91,7 @@
       } else {
           const errorText = await response.text();  // HTML lỗi (nếu có)
           console.error('Server response is not JSON:', errorText);
-          resultMessage.innerText = `Lỗi: Server trả về định dạng không hợp lệ hoặc lỗi nội bộ.`;
+          resultMessage.innerText = `Lỗi: Server trả về dữ liệu không hợp lệ.\n${errorText}`;
       }
     } catch (err) {
       console.error('Lỗi khi gửi yêu cầu đến server:', err);  // Thêm log kiểm tra lỗi
