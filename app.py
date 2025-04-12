@@ -105,6 +105,7 @@ def predict():
 
         # Thực hiện dự đoán
         predictions = model.predict(img_array)
+        print("Kết quả dự đoán:", predictions)  # Thêm log kiểm tra
         result = {
             'predictions': predictions.tolist()
         }
