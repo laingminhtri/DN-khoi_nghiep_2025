@@ -19,9 +19,23 @@ EXTRACTED_MODEL_PATH = './models/best_weights_model.keras'
 def extract_model():
     if not os.path.exists(EXTRACTED_MODEL_PATH):
         print("Extracting model weights...")
+
+
+# Tải file nếu chưa tồn tại
+        if not os.path.exists(COMPRESSED_MODEL_PATH):
+            print("File nén không tồn tại. Đang tải về từ Google Drive...")
+            gdown.download(
+                "https://drive.google.com/uc?id=<ID_FILE_GOOGLE_DRIVE>",  # Thay <ID_FILE_GOOGLE_DRIVE> bằng ID file của bạn
+                COMPRESSED_MODEL_PATH,
+                quiet=False,
+            )
+        
+        
         with py7zr.SevenZipFile(COMPRESSED_MODEL_PATH, mode='r') as archive:
             archive.extractall(path='./models')
         print("Model extraction complete.")
+
+
 
 # Load the model (ensure the model is extracted first)
 model = None
