@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
     libc-dev \
-    libcurl4-openssl-dev  # Thêm các thư viện cần thiết cho TensorFlow
+    libcurl4-openssl-dev
 
 # Cập nhật pip lên phiên bản mới nhất
 RUN pip install --upgrade pip
