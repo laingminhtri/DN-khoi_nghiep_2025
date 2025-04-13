@@ -119,16 +119,16 @@ p        rint("📦 Mô hình đã được load.")
         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
 
 
-    # Process result
-        predicted_class = 'nodule' if predictions[0][0] > 0.5 else 'non-nodule'
-        confidence = float(predictions[0][0]) if predictions[0][0] > 0.5 else 1 - float(predictions[0][0])
+    # # Process result
+    #     predicted_class = 'nodule' if predictions[0][0] > 0.5 else 'non-nodule'
+    #     confidence = float(predictions[0][0]) if predictions[0][0] > 0.5 else 1 - float(predictions[0][0])
 
-        print("✅ Phân loại:", predicted_class, "| Độ tin cậy:", confidence)
+    #     print("✅ Phân loại:", predicted_class, "| Độ tin cậy:", confidence)
 
-        return jsonify({'prediction': predicted_class, 'confidence': confidence})
-    except Exception as e:
-        print("❌ Lỗi khi dự đoán:", str(e))
-        return jsonify({'error': str(e)}), 500
+    #     return jsonify({'prediction': predicted_class, 'confidence': confidence})
+    # except Exception as e:
+    #     print("❌ Lỗi khi dự đoán:", str(e))
+    #     return jsonify({'error': str(e)}), 500
 
     # @app.route("/upload_file", methods=["POST"])
     # def upload_file():
