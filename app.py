@@ -85,6 +85,9 @@ def dashboard():
 def predict():
     try:
         load_model()
+p        rint("📦 Mô hình đã được load.")
+
+        
 
         if 'image' not in request.files:
             return jsonify({'error': 'Không có file ảnh được gửi!'}), 400
@@ -93,6 +96,9 @@ def predict():
         if file.filename == '':
             return jsonify({'error': 'Tên file rỗng!'}), 400
 
+        print("Đã nhận file:", file.filename)
+        print("Đang xử lý ảnh...")
+
         # Xử lý ảnh
         from PIL import Image
         image = Image.open(file).convert('RGB')
@@ -100,6 +106,8 @@ def predict():
         img_array = np.array(image) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
 
+         print("📸 Ảnh đã được xử lý xong.")
+        
         # Thực hiện dự đoán
         predictions = model.predict(img_array)
         print("Kết quả dự đoán:", predictions)
@@ -109,6 +117,18 @@ def predict():
     except Exception as e:
         print(f"Lỗi trong route /predict: {str(e)}")
         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
+
+
+    # Process result
+        predicted_class = 'nodule' if predictions[0][0] > 0.5 else 'non-nodule'
+        confidence = float(predictions[0][0]) if predictions[0][0] > 0.5 else 1 - float(predictions[0][0])
+
+        print("✅ Phân loại:", predicted_class, "| Độ tin cậy:", confidence)
+
+        return jsonify({'prediction': predicted_class, 'confidence': confidence})
+    except Exception as e:
+        print("❌ Lỗi khi dự đoán:", str(e))
+        return jsonify({'error': str(e)}), 500
 
     # @app.route("/upload_file", methods=["POST"])
     # def upload_file():
