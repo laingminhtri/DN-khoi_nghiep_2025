@@ -23,5 +23,3 @@ EXPOSE 5000
 
 # Chạy app với Gunicorn
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
-
-
