@@ -85,7 +85,7 @@ def dashboard():
 def predict():
     try:
         load_model()
-p        rint("📦 Mô hình đã được load.")
+p        print("📦 Mô hình đã được load.")
 
         
 
