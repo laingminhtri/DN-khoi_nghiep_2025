@@ -18,3 +18,11 @@ EXPOSE 5000
 
 # Command để chạy app
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
+
+
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgl1 \
+    libglib2.0-0
+
