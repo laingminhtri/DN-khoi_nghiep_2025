@@ -8,7 +8,7 @@ from flask_cors import CORS  # Import CORS
 
 # Tạo Flask app
 app = Flask(__name__)
-CORS(app)  # Định cấu hình CORS cho toàn bộ app
+CORS(app, resources={r"/*": {"origins": "*"}})  # Định cấu hình CORS cho toàn bộ app
 
 # Đường dẫn đến các phần của file nén và file mô hình sau khi giải nén
 COMPRESSED_FILE_PARTS = [
