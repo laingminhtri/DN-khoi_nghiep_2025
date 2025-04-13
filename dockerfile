@@ -7,7 +7,12 @@ RUN apt-get update && apt-get install -y p7zip-full && rm -rf /var/lib/apt/lists
 RUN apt-get update && apt-get install -y \
     build-essential \
     libgl1 \
-    libglib2.0-0
+    libglib2.0-0 \
+    libc-dev \
+    libcurl4-openssl-dev  # Thêm các thư viện cần thiết cho TensorFlow
+
+# Cập nhật pip lên phiên bản mới nhất
+RUN pip install --upgrade pip
 
 # Set thư mục làm việc
 WORKDIR /app
